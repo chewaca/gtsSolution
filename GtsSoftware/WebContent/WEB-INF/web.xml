@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+  <display-name>GtsSoftware</display-name>
+  <welcome-file-list>
+    <welcome-file>/Gts/general/index.jsp</welcome-file>
+
+  </welcome-file-list>
+  
+<!-- A nivel de .java -->  
+<servlet id="Servlet_0001">
+        <servlet-name>SMVProceso</servlet-name>
+		<servlet-class>GtsSoftware.proceso.SMVProceso</servlet-class>
+</servlet>
+<servlet id="Servlet_0002">
+        <servlet-name>GENLogin</servlet-name>
+		<servlet-class>GtsSoftware.general.GENLogin</servlet-class>
+</servlet>
+<servlet id="Servlet_0003">
+        <servlet-name>SMVProgramacion</servlet-name>
+		<servlet-class>GtsSoftware.programacion.SMVProgramacion</servlet-class>
+</servlet>
+<servlet id="Servlet_0004">
+        <servlet-name>SMVSubproceso</servlet-name>
+		<servlet-class>GtsSoftware.subproceso.SMVSubproceso</servlet-class>
+</servlet>
+<servlet id="Servlet_0005">
+        <servlet-name>SMVActividad</servlet-name>
+		<servlet-class>GtsSoftware.actividad.SMVActividad</servlet-class>
+</servlet>
+<servlet id="Servlet_0006">
+        <servlet-name>SMVActivo</servlet-name>
+		<servlet-class>GtsSoftware.activo.SMVActivo</servlet-class>
+</servlet>
+<servlet id="Servlet_0007">
+        <servlet-name>SMVUsuario</servlet-name>
+		<servlet-class>GtsSoftware.usuario.SMVUsuario</servlet-class>
+</servlet>
+<servlet id="Servlet_0008">
+        <servlet-name>SMVPersonal</servlet-name>
+		<servlet-class>GtsSoftware.personal.SMVPersonal</servlet-class>
+</servlet>
+<servlet id="Servlet_0009">
+        <servlet-name>GENConfiguracion</servlet-name>
+		<servlet-class>GtsSoftware.general.GENConfiguracion</servlet-class>
+</servlet>
+
+
+<!-- A nivel de .jsp -->
+<servlet-mapping id="ServletMapping_0001">
+        <servlet-name>SMVProceso</servlet-name>
+<url-pattern>/Gts/proceso/SMVProceso</url-pattern>
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0002">
+        <servlet-name>GENLogin</servlet-name>
+<url-pattern>/Gts/general/GENLogin</url-pattern>
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0003">
+	<servlet-name>SMVProgramacion</servlet-name>
+	<url-pattern>/Gts/programacion/SMVProgramacion</url-pattern>	
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0004">
+	<servlet-name>SMVSubproceso</servlet-name>
+	<url-pattern>/Gts/subproceso/SMVSubproceso</url-pattern>	
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0005">
+	<servlet-name>SMVActividad</servlet-name>
+	<url-pattern>/Gts/actividad/SMVActividad</url-pattern>	
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0006">
+	<servlet-name>SMVProgramacion</servlet-name>
+	<url-pattern>/Gts/subproceso/SMVProgramacion</url-pattern>	
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0007">
+	<servlet-name>SMVActivo</servlet-name>
+	<url-pattern>/Gts/activo/SMVActivo</url-pattern>	
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0008">
+	<servlet-name>SMVUsuario</servlet-name>
+	<url-pattern>/Gts/usuario/SMVUsuario</url-pattern>	
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0009">
+	<servlet-name>SMVUsuario</servlet-name>
+	<url-pattern>/Gts/rol/SMVUsuario</url-pattern>	
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0010">
+	<servlet-name>SMVPersonal</servlet-name>
+	<url-pattern>/Gts/personal/SMVPersonal</url-pattern>	
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0011">
+	<servlet-name>GENConfiguracion</servlet-name>
+	<url-pattern>/Gts/configuracion/GENConfiguracion</url-pattern>	
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0012">
+	<servlet-name>SMVPersonal</servlet-name>
+	<url-pattern>/Gts/area/SMVPersonal</url-pattern>	
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0013">
+	<servlet-name>SMVPersonal</servlet-name>
+	<url-pattern>/Gts/curso/SMVPersonal</url-pattern>	
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0014">
+	<servlet-name>SMVPersonal</servlet-name>
+	<url-pattern>/Gts/dias_nolaborales/SMVPersonal</url-pattern>	
+</servlet-mapping>
+<servlet-mapping id="ServletMapping_0015">
+	<servlet-name>SMVPersonal</servlet-name>
+	<url-pattern>/Gts/capacitacion/SMVPersonal</url-pattern>	
+</servlet-mapping>
+</web-app>

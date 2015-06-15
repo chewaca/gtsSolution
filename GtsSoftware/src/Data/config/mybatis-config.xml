@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+  <environments default="development">
+    <environment id="development">
+      <transactionManager type="JDBC"/>
+      <dataSource type="POOLED">
+        <property name="driver" value="com.mysql.jdbc.Driver" />
+         <property name="url" value="jdbc:mysql://localhost:3306/gtssolution"/>
+        <property name="username" value="root"/> 
+		<!--<property name="url" value="jdbc:mysql://gts.inf.pucp.edu.pe:3306/gtsinf"/>
+        <property name="username" value="gtsinf"/>
+        <property name="password" value="spring10"/>-->
+      </dataSource>
+    </environment>
+  </environments>
+  <mappers>
+    <mapper resource="Data/mappers/proceso_mapper.xml"/>  
+    <mapper resource="Data/mappers/login_mapper.xml"/>
+    <mapper resource="Data/mappers/subproceso_mapper.xml"/>  
+ 	<mapper resource="Data/mappers/programacion_mapper.xml"/> 
+ 	<mapper resource="Data/mappers/subproceso_mapper.xml"/>
+ 	<mapper resource="Data/mappers/tipomoneda_mapper.xml"/>
+ 	<mapper resource="Data/mappers/actividad_mapper.xml"/>
+ 	<mapper resource="Data/mappers/activo_mapper.xml"/>
+ 	<mapper resource="Data/mappers/usuario_mapper.xml"/>
+ 	<mapper resource="Data/mappers/personal_mapper.xml"/>
+  </mappers>
+</configuration>

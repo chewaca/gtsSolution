@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- para poder hacer referencia a este mapper dentro de los BeanFuncions -->
+
+<mapper namespace="Data.mappers.tipomoneda">
+
+  <cache />
+  
+  
+<!-- Agregar plantilla subproceso -->
+
+
+<insert id="insertarTipoMoneda" parameterType="GtsSoftware.tipomoneda.TipoMonedaBeanData" flushCache="true">
+	insert into tipomoneda(IdTipoMoneda,Nombre,Sigla) <!-- esto esa a nivel de BD -->
+	values (#{codigo},#{nombre},#{sigla}) <!-- esto a nivel de clases de java en este ejemplo, ProcesoBeanData-->
+</insert>
+  
+<!--  id, es el nombre de una funcion, poner un nombre que desees que guarde relevancia
+	  parameterType, es la ruta de la clase de donde voy a sacar los atributos, es decir los values {atributo}
+	  resultType, la ruta de la clase que tiene la estructura de lo que se va devolver
+-->  
+
+<select id="buscarSubprocesoProceso" parameterType="java.lang.Integer" resultType="GtsSoftware.subproceso.ResultadoSubprocesoBeanData">
+select 
+SUBPROCESO.IdProceso as codigosubproceso
+,SUBPROCESO.Orden as orden
+,SUBPROCESO.Descripcion as descripcion
+,SUBPROCESO.Estado as estado
+from SUBPROCESO
+where SUBPROCESO.IdProceso=#{valor}
+</select>
+
+<select id="buscarSubproceso" parameterType="GtsSoftware.subproceso.CriterioSubprocesoBeanData" resultType="GtsSoftware.subproceso.ResultadoSubprocesoBeanData">
+select 
+SUBPROCESO.IdProceso as codigo
+,SUBPROCESO.Nombre as nombre
+,SUBPROCESO.Descripcion as descripcion
+,SUBPROCESO.Estado as estado
+from SUBPROCESO
+<where>
+	<if test="nombre != null ">
+        SUBPROCESO.nombre  like  #{nombre}
+    </if>    
+</where>
+</select>
+<!-- Fin agregar  -->
+
+
+<!-- Busca un proceso por ID -->
+<select id="buscarUnSubproceso" parameterType="java.lang.Integer"  resultType="GtsSoftware.subproceso.SubprocesoBeanData">
+select 
+SUBPROCESO.IdSubProceso as codigo
+,SUBPROCESO.Nombre as nombre
+,SUBPROCESO.Descripcion as descripcion
+,SUBPROCESO.FechaInicio as fechaInicio
+,SUBPROCESO.FechaFin as fechaFin
+,SUBPROCESO.Estado as estado
+from SUBPROCESO where SUBPROCESO.IdSubProceso=#{codigo}
+</select>
+
+
+
+ <!-- Modificar proceso, lo del lado derecho es conforme esta en tu .java -->
+<update id="modificarSubproceso" parameterType="GtsSoftware.subproceso.SubprocesoBeanData">
+update SUBPROCESO set SUBPROCESO.Nombre=#{nombre}
+ ,SUBPROCESO.FechaActual=#{fechaActual}
+ ,SUBPROCESO.Descripcion=#{descripcion}
+ ,SUBPROCESO.Estado=#{estado}
+ where SUBPROCESO.IdSubProceso= #{codigo}
+</update>
+
+  
+<!-- Busca el máximo codigo para poder generar el siguiente codigo -->
+<select id="sacarCodigo" resultType="java.lang.Integer">
+	select max(IdTipoMoneda) from TIPOMONEDA
+</select>
+ 
+</mapper>

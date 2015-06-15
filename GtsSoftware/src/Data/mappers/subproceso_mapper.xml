@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- para poder hacer referencia a este mapper dentro de los BeanFuncions -->
+
+<mapper namespace="Data.mappers.subproceso">
+
+  <cache />
+  
+  
+<!-- Agregar plantilla subproceso -->
+
+<!-- Para agregar un subproceso, desde un proceso -->
+<insert id="insertarSubProceso" parameterType="GtsSoftware.subproceso.SubprocesoBeanData" flushCache="true">
+	insert into subproceso(IdSubProceso,IdProceso,Descripcion,FechaActual,Orden,Estado,IdSubProcesoPadre,Nombre,TiempoEstimado,IdRolEjecutor,IdRolResponsable) <!-- esto esa a nivel de BD -->
+	values (#{codigosubproceso},#{codigoproceso},#{descripcion},#{fechaActual},#{orden},#{estado},#{codigosubprocesopadre},#{nombre},#{tiempoEstimado},#{idRolEjecutor},#{idRolResponsable}) <!-- esto a nivel de clases de java en este ejemplo, ProcesoBeanData-->
+</insert>
+  
+<!--  id, es el nombre de una funcion, poner un nombre que desees que guarde relevancia
+	  parameterType, es la ruta de la clase de donde voy a sacar los atributos, es decir los values {atributo}
+	  resultType, la ruta de la clase que tiene la estructura de lo que se va devolver
+-->  
+
+<!-- Para sacar el maximo orden de un proceso, y generar un subproceso nuevo con ese proceso -->
+<select id="sacarMaxOrden" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+	select max(Orden) 
+	from SUBPROCESO where SUBPROCESO.IdProceso=#{codigo}	
+</select>
+
+
+  
+<!--  id, es el nombre de una funcion, poner un nombre que desees que guarde relevancia
+	  parameterType, es la ruta de la clase de donde voy a sacar los atributos, es decir los values {atributo}
+	  resultType, la ruta de la clase que tiene la estructura de lo que se va devolver
+--> 
+
+<!-- Para sacar el maximo orden de un subprocesoPadre, y generar un subproceso nuevo con ese subprocesoPadre -->
+<select id="sacarMaxOrdenPadre" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+	select max(Orden) 
+	from SUBPROCESO where SUBPROCESO.IdSubProcesoPadre=#{codigo}	
+</select>
+
+
+<select id="buscarSubprocesoProceso" parameterType="java.lang.Integer" resultType="GtsSoftware.subproceso.ResultadoSubprocesoBeanData">
+select 
+SUBPROCESO.IdProceso as codigoproceso
+,SUBPROCESO.IdSubProceso as codigosubproceso
+,SUBPROCESO.Orden as orden
+,SUBPROCESO.Descripcion as descripcion
+,SUBPROCESO.Estado as estado
+,SUBPROCESO.Estado as estadoL
+,SUBPROCESO.Nombre as nombre
+from SUBPROCESO
+where SUBPROCESO.IdProceso=#{valor}
+order by 2 desc
+</select>
+
+
+<select id="buscarSubprocesoProcesoAux" parameterType="java.lang.Integer" resultType="GtsSoftware.subproceso.ResultadoSubprocesoBeanData">
+select 
+SUBPROCESO.IdProceso as codigoproceso
+,SUBPROCESO.IdSubProceso as codigosubproceso
+,SUBPROCESO.Orden as orden
+,SUBPROCESO.Descripcion as descripcion
+,SUBPROCESO.Estado as estado
+,SUBPROCESO.Estado as estadoL
+,SUBPROCESO.Nombre as nombre
+from SUBPROCESO
+where SUBPROCESO.IdProceso=#{valor}
+order by 3 asc
+</select>
+
+<select id="buscarSubproceso" parameterType="GtsSoftware.subproceso.CriterioSubprocesoBeanData" resultType="GtsSoftware.subproceso.ResultadoSubprocesoBeanData">
+<!-- en el select esta  GtsSoftware.subproceso.ResultadoSubprocesoBeanData-->
+select
+ SUBPROCESO.IdProceso as codigoproceso
+,SUBPROCESO.IdSubProceso as codigosubproceso
+,SUBPROCESO.IdSubProcesoPadre as codigosubprocesopadre
+,SUBPROCESO.Nombre as nombre
+,SUBPROCESO.Orden as orden
+,SUBPROCESO.Descripcion as descripcion
+,SUBPROCESO.Estado as estado
+from SUBPROCESO
+WHERE SUBPROCESO.IdSubProcesoPadre IN (select SUBPROCESO.IdSubProceso 
+from SUBPROCESO 
+where SUBPROCESO.Nombre like #{nombresubproceso}) 
+OR SUBPROCESO.IdProceso IN (select PROCESO.IdProceso
+from PROCESO
+where PROCESO.Nombre like #{nombreproceso})
+ORDER BY SUBPROCESO.Orden
+<!-- </where> -->
+</select>
+
+
+
+<!-- Busca un subproceso por ID de su proceso superior -->
+<select id="buscarUnSubproceso" parameterType="java.lang.Integer"  resultType="GtsSoftware.subproceso.ResultadoSubprocesoBeanData">
+select 
+SUBPROCESO.IdSubProceso as codigosubproceso
+,SUBPROCESO.IdProceso as codigoproceso
+,SUBPROCESO.Nombre as nombre
+,SUBPROCESO.Descripcion as descripcion
+,SUBPROCESO.FechaActual as fechaActual
+,SUBPROCESO.Orden as orden
+,SUBPROCESO.Estado as estado
+from SUBPROCESO where SUBPROCESO.IdProceso=#{codigoproceso}
+</select>
+
+<!-- Busca un subproceso por su ID -->
+<select id="buscarUnSubprocesoS" parameterType="java.lang.Integer"  resultType="GtsSoftware.subproceso.SubprocesoBeanData">
+select 
+SUBPROCESO.IdSubProceso as codigosubproceso
+,SUBPROCESO.IdProceso as codigoproceso
+,SUBPROCESO.Nombre as nombre
+,SUBPROCESO.Descripcion as descripcion
+,SUBPROCESO.FechaActual as fechaActual
+,SUBPROCESO.IdSubProcesoPadre as codigosubprocesopadre
+,SUBPROCESO.Orden as orden
+,SUBPROCESO.Estado as estado
+from SUBPROCESO where SUBPROCESO.IdSubProceso=#{codigosubproceso}
+</select>
+
+
+
+<select id="buscarUnProcesoS" parameterType="java.lang.Integer"  resultType="GtsSoftware.proceso.ProcesoBeanData">
+select 
+PROCESO.IdProceso as codigo
+,PROCESO.Nombre as nombre
+,PROCESO.Descripcion as descripcion
+,PROCESO.Estado as estado
+from PROCESO where PROCESO.IdProceso=#{codigo}
+</select>
+
+
+
+<select id="buscarUnSubprocesoNombre" parameterType="java.lang.String"  resultType="GtsSoftware.subproceso.SubprocesoBeanData">
+select 
+SUBPROCESO.IdSubProceso as codigosubproceso
+,SUBPROCESO.IdSubProcesoPadre as codigosubprocesopadre
+,SUBPROCESO.IdProceso as codigoproceso
+,SUBPROCESO.Nombre as nombre
+,SUBPROCESO.Descripcion as descripcion
+,SUBPROCESO.FechaActual as fechaActual
+,SUBPROCESO.Orden as orden
+,SUBPROCESO.Estado as estado
+from SUBPROCESO where SUBPROCESO.Nombre=#{nombre}
+</select>
+
+
+
+<select id="buscarUnSubprocesoOrden" parameterType="GtsSoftware.subproceso.SubprocesoBeanData"  resultType="GtsSoftware.subproceso.SubprocesoBeanData">
+select 
+SUBPROCESO.IdSubProceso as codigosubproceso
+,SUBPROCESO.IdSubProcesoPadre as codigosubprocesopadre
+,SUBPROCESO.IdProceso as codigoproceso
+,SUBPROCESO.Nombre as nombre
+,SUBPROCESO.Descripcion as descripcion
+,SUBPROCESO.FechaActual as fechaActual
+,SUBPROCESO.Orden as orden
+,SUBPROCESO.Estado as estado
+from SUBPROCESO where SUBPROCESO.Orden=#{orden}
+and SUBPROCESO.IdProceso=#{codigoproceso}
+</select>
+
+
+<select id="buscarUnProcesoNombre" parameterType="java.lang.String"  resultType="GtsSoftware.proceso.ProcesoBeanData">
+select 
+PROCESO.IdProceso as codigo
+,PROCESO.Nombre as nombre
+,PROCESO.Descripcion as descripcion
+,PROCESO.Estado as estado
+from PROCESO where PROCESO.Nombre=#{nombre}
+</select>
+
+
+<!-- buscar los subprocesos de un proceso, para segundos niveles -->
+<select id="buscarSubprocesosNivelDos" parameterType="java.lang.Integer"  resultType="GtsSoftware.subproceso.ResultadoSubprocesoBeanData">
+select 
+SUBPROCESO.IdSubProceso as codigosubproceso
+,SUBPROCESO.IdProceso as codigoproceso
+,SUBPROCESO.Nombre as nombre
+,SUBPROCESO.Descripcion as descripcion
+,SUBPROCESO.FechaActual as fechaActual
+,SUBPROCESO.Orden as orden
+,SUBPROCESO.Estado as estado
+from SUBPROCESO where SUBPROCESO.IdProceso=#{codigoproceso}
+ORDER BY 6 asc
+</select>
+
+
+
+<!-- buscar los subprocesos de un subproceso, para niveles inferiores-->
+<select id="buscarSubprocesosNivelInferior" parameterType="java.lang.Integer"  resultType="GtsSoftware.subproceso.ResultadoSubprocesoBeanData">
+select 
+SUBPROCESO.IdSubProceso as codigosubproceso
+,SUBPROCESO.IdProceso as codigoproceso
+,SUBPROCESO.IdSubProcesoPadre as codigosubprocesopadre
+,SUBPROCESO.Nombre as nombre
+,SUBPROCESO.Descripcion as descripcion
+,SUBPROCESO.FechaActual as fechaActual
+,SUBPROCESO.Orden as orden
+,SUBPROCESO.Estado as estado
+from SUBPROCESO where SUBPROCESO.IdSubProcesoPadre=#{codigosubprocesopadre}
+ORDER BY 7 asc
+</select>
+
+
+ <!-- Modificar proceso, lo del lado derecho es conforme esta en tu .java -->
+<update id="modificarSubproceso" parameterType="GtsSoftware.subproceso.SubprocesoBeanData">
+update SUBPROCESO set SUBPROCESO.Nombre=#{nombre}
+ ,SUBPROCESO.FechaActual=#{fechaActual}
+ ,SUBPROCESO.Descripcion=#{descripcion}
+ ,SUBPROCESO.Estado=#{estado}
+ ,SUBPROCESO.Orden=#{orden}
+ where SUBPROCESO.IdSubProceso= #{codigosubproceso}
+</update>
+
+  
+<!-- Busca el máximo codigo para poder generar el siguiente codigo -->
+<select id="sacarCodigo" resultType="java.lang.Integer">
+	select max(IdSubProceso) from SUBPROCESO
+</select>
+
+
+<!-- Busca todas las programaciones de un proceso -->
+<select id="buscarProgramacion" parameterType="java.lang.Integer"  resultType="GtsSoftware.programacion.ResultadoProgramacionBeanData">
+select
+P.IdProgramacion idProgramacion
+,P.IdSubProceso idSubproceso
+,P.Descripcion descripcion
+,P.IdOcurrencia idOcurrencia
+,P.Ocurrencia ocurrencia
+,P.FechaInicio fechaInicio
+,P.FechaFin fechaFin
+,P.Estado estado
+FROM PROGRAMACION P
+where P.IdSubProceso=#{idSubproceso}
+</select>
+ 
+</mapper>

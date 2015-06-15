@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- para poder hacer referencia a este mapper dentro de los BeanFuncions -->
+
+<mapper namespace="Data.mappers.activo">
+
+  <cache />
+
+<insert id="insertarActivo" parameterType="GtsSoftware.activo.ActivoBeanData" flushCache="true">
+	insert into activo(IdActivo,NumeroActivo,Nombre,FechaCompra,FechaRegistro,MontoCompra,IdTipoMoneda,IdProveedor,Descripcion,Estado,IdTipoActivo,BajoMantenimiento,IdLocal,FechaVencimientoGarantia,CodigoPatrimonial,IdMarca) <!-- esto esa a nivel de BD -->
+	values (#{codigo},#{numeroSerie},#{nombre},#{fechaCompra},#{fechaRegistro},#{montoCompra},#{tipoMoneda},#{proveedor},#{descripcion},#{estado},#{tipoActivo},#{bajoMantenimiento},#{idLocal},#{fechaVencimientoGarantia},#{codigoPatrimonial},#{idMarca}) <!-- esto a nivel de clases de java en este ejemplo, ProcesoBeanData-->
+</insert>
+
+
+
+<insert id="insertarActivoInventario" parameterType="GtsSoftware.activo.InventarioActivoBeanData" flushCache="true">
+	insert into inventario_activo(IdInventario,IdTipoActivo,IdLocal,Cantidad) <!-- esto esa a nivel de BD -->
+	values (#{idInventario},#{idTipoActivo},#{idLocal},#{cantidad}) <!-- esto a nivel de clases de java en este ejemplo, ProcesoBeanData-->
+</insert>
+
+
+
+<insert id="insertarProgramacionActivo" parameterType="GtsSoftware.activo.ProgramacionActivoBeanData" flushCache="true">
+	insert into activoxprogramacion(IdActivoProgramado,IdTipoActivo,IdActivo,IdProgramacion) <!-- esto esa a nivel de BD -->
+	values (#{idActivoProgramada},#{idTipoActivo},#{idActivo},#{idProgramacion}) <!-- esto a nivel de clases de java en este ejemplo, ProcesoBeanData-->
+</insert>
+
+<!-- Busca Activo General -->
+<select id="buscarActivoGeneral" parameterType="GtsSoftware.activo.CriterioActivoBeanData" resultType="GtsSoftware.activo.ResultadoActivoBeanData">
+select 
+A.IdActivo as codigo
+,A.Nombre as nombre
+,A.MontoCompra as montoCompra
+,A.IdProveedor as idProveedor
+,A.IdTipoMoneda as tipoMoneda
+,A.IdTipoActivo as idTipoActivo
+,A.CodigoPatrimonial as codigoPatrimonial
+,A.NumeroActivo as numeroSerie
+,A.Descripcion as descripcion
+,A.IdLocal as idLocal
+,A.Estado as estado
+,A.IdMarca as idMarca
+,A.BajoMantenimiento as bajoMantenimiento
+from ACTIVO A
+inner join TIPOACTIVO TA on A.IdTipoActivo=TA.IdTipoActivo
+<where>
+	<if test="nombre != null ">
+        TA.Nombre like #{nombre}
+    </if>
+    <if test="numeroSerie != null">
+        AND A.NumeroActivo like #{numeroSerie}
+    </if>
+    <if test="estado != 0 ">
+        AND A.Estado=#{estado}
+    </if>
+    <if test="idLocal != 0 ">
+        AND A.IdLocal=#{idLocal}
+    </if>
+</where>
+</select>
+
+
+
+<select id="buscarEnInventario" parameterType="GtsSoftware.activo.ActivoBeanData" resultType="GtsSoftware.activo.InventarioActivoBeanData">
+select 
+IA.IdInventario as idInventario
+,IA.IdTipoActivo as idTipoActivo
+,IA.IdLocal as idLocal
+,IA.Cantidad as cantidad
+from INVENTARIO_ACTIVO IA
+<where>
+	<if test="tipoActivo != 0 ">
+        IA.IdTipoActivo = #{tipoActivo}
+    </if>    	
+    <if test="idLocal != 0">
+        AND IA.IdLocal = #{idLocal}
+    </if>
+</where>
+</select>
+
+
+<select id="buscarEnInventarioLocal" parameterType="GtsSoftware.activo.ActivoBeanData" resultType="GtsSoftware.activo.InventarioActivoBeanData">
+select 
+IA.IdInventario as idInventario
+,IA.IdTipoActivo as idTipoActivo
+,IA.IdLocal as idLocal
+,IA.Cantidad as cantidad
+from INVENTARIO_ACTIVO IA
+<where>
+    <if test="idLocal != 0">
+        IA.IdLocal = #{idLocal}
+    </if>
+	AND IA.Cantidad!=0    
+</where>
+</select>
+
+
+<select id="buscarListaActivosInventario" parameterType="GtsSoftware.activo.ActivoBeanData" resultType="GtsSoftware.activo.ResultadoActivoBeanData">
+select 
+A.IdActivo as codigo
+,A.IdTipoActivo as tipoActivo
+,A.IdLocal as idLocal
+,A.FechaVencimientoGarantia as fechaVencimientoGarantia
+,A.IdMarca as idMarca
+,A.IdProveedor as idProveedor
+,A.IdTipoActivo as idTipoActivo
+,A.Estado as estado
+,A.NumeroActivo as numeroSerie
+from ACTIVO A
+<where>
+    <if test="idLocal != 0">
+        A.IdLocal = #{idLocal}
+    </if>
+    <if test="tipoActivo != 0">
+        AND A.IdTipoActivo = #{tipoActivo}
+    </if>
+    AND A.Estado!=8
+</where>
+</select>
+
+
+
+
+<!-- SELECCIONAR ACTIVOS, Equipos con IdTipoActivo=1  -->
+<select id="buscarActivo" parameterType="GtsSoftware.activo.CriterioActivoBeanData" resultType="GtsSoftware.activo.ResultadoActivoBeanData">
+select 
+ACTIVO.IdActivo as codigo
+,ACTIVO.Nombre as nombre
+,ACTIVO.MontoCompra as montoCompra
+,ACTIVO.IdProveedor as idProveedor
+,ACTIVO.IdTipoMoneda as tipoMoneda
+,ACTIVO.IdTipoActivo as idTipoActivo
+,ACTIVO.NumeroActivo as numeroSerie
+,ACTIVO.Descripcion as descripcion
+,ACTIVO.Estado as estado
+,ACTIVO.BajoMantenimiento as bajoMantenimiento
+,ACTIVO.IdLocal as idLocal
+from ACTIVO
+<where>
+	<if test="nombre != null ">
+        ACTIVO.Nombre like #{nombre}
+    </if>
+    	
+    <if test="numeroSerie != null ">
+        AND ACTIVO.NumeroActivo like #{numeroSerie}
+    </if>
+    <if test="estado != 0 ">
+        AND ACTIVO.Estado=#{estado}
+    </if>
+    <if test="bajoMantenimiento!= 0 ">
+  		AND ACTIVO.BajoMantenimiento=#{bajoMantenimiento}
+	</if>
+	<if test="idLocal!= 0 ">
+  		AND ACTIVO.IdLocal=#{idLocal}
+	</if>
+
+</where>
+</select>
+
+
+
+<!-- SELECCIONAR Repuestos Repuestos con IdTipoActivo=2 y IdActivoPadre !=null ya que si es asi no se han asignado aun-->
+<select id="buscarRepuesto" parameterType="GtsSoftware.activo.CriterioActivoBeanData" resultType="GtsSoftware.activo.ResultadoActivoBeanData">
+select 
+ACTIVO.IdActivo as codigo
+,ACTIVO.Nombre as nombre
+,ACTIVO.MontoCompra as montoCompra
+,ACTIVO.IdProveedor as idProveedor
+,ACTIVO.IdTipoMoneda as tipoMoneda
+,ACTIVO.IdTipoActivo as idTipoActivo
+,ACTIVO.NumeroActivo as numeroSerie
+,ACTIVO.Descripcion as descripcion
+,ACTIVO.Estado as estado
+,ACTIVO.BajoMantenimiento as bajoMantenimiento
+,ACTIVO.IdLocal as idLocal
+from ACTIVO
+<where>
+	<if test="nombre != null ">
+        ACTIVO.Nombre like #{nombre}
+    </if>
+    	
+    <if test="numeroSerie != null">
+        AND ACTIVO.NumeroActivo like #{numeroSerie}
+    </if>
+    <if test="estado != 0 ">
+        AND ACTIVO.Estado=#{estado}
+    </if>
+    <if test="idLocal!= 0 ">
+  		AND ACTIVO.IdLocal=#{idLocal}
+	</if>
+	AND ACTIVO.IdActivoPadre IS NULL
+</where>
+</select>
+
+
+<select id="buscarUnaActividad" parameterType="java.lang.Integer"  resultType="GtsSoftware.actividad.ActividadBeanData">
+select 
+SUBPROCESO.IdSubProceso as codigo
+,SUBPROCESO.Nombre as nombre
+,SUBPROCESO.Descripcion as descripcion
+,SUBPROCESO.FechaInicio as fechaInicio
+,SUBPROCESO.FechaFin as fechaFin
+,SUBPROCESO.Estado as estado
+from SUBPROCESO where SUBPROCESO.IdSubProceso=#{codigo}
+</select>
+
+
+<select id="buscarUnActivo" parameterType="java.lang.Integer"  resultType="GtsSoftware.activo.ActivoBeanData">
+select 
+ACTIVO.IdActivo as codigo
+,ACTIVO.Nombre as nombre
+,ACTIVO.MontoCompra as montoCompra
+,ACTIVO.IdProveedor as proveedor
+,ACTIVO.FechaRegistro as fechaRegistro
+,ACTIVO.FechaCompra as fechaCompra
+,ACTIVO.IdTipoMoneda as tipoMoneda
+,ACTIVO.IdTipoActivo as tipoActivo
+,ACTIVO.NumeroActivo as numeroSerie
+,ACTIVO.CodigoPatrimonial as codigoPatrimonial
+,ACTIVO.Descripcion as descripcion
+,ACTIVO.FechaBaja as fechaBaja
+,ACTIVO.MotivoBaja as motivoBaja
+,ACTIVO.Estado as estado
+,ACTIVO.IdMarca as idMarca
+,ACTIVO.IdLocal as idLocal
+from ACTIVO where ACTIVO.IdActivo=#{codigo}
+</select>
+
+
+<select id="buscarUnTipoMoneda" parameterType="java.lang.Integer"  resultType="GtsSoftware.tipomoneda.TipoMonedaBeanData">
+select 
+TM.IdTipoMoneda as codigo
+,TM.Nombre as nombre
+,TM.Sigla as sigla
+from TIPOMONEDA TM where TM.IdTipoMoneda=#{codigo}
+</select>
+
+
+<select id="buscarUnTipoActivo" parameterType="java.lang.Integer"  resultType="GtsSoftware.activo.TipoActivoBeanData">
+select 
+TA.IdTipoActivo as codigo
+,TA.Nombre as nombre
+,TA.Descripcion as descripcion
+,TA.IdTipoActivoPadre as tipoActivoPadre
+from TIPOACTIVO TA where TA.IdTipoActivo=#{codigo}
+</select>
+
+
+<select id="buscarUnLocal" parameterType="java.lang.Integer"  resultType="GtsSoftware.local.LocalBeanData">
+select 
+L.IdLocal as codigo
+,L.Nombre as nombre
+,L.Descripcion as descripcion
+,L.IdLocalPadre as idLocalPadre
+from LOCAL L where L.IdLocal=#{idLocal}
+</select>
+
+
+<select id="buscarUnProveedor" parameterType="java.lang.Integer"  resultType="GtsSoftware.proveedor.ProveedorBeanData">
+select 
+P.IdProveedor as codigo
+,P.RazonSocial as razonSocial
+,P.RUC as ruc
+,P.Telefono1 as telefono1
+,P.Telefono2 as telefono2
+from PROVEEDOR P where P.IdProveedor=#{codigo}
+</select>
+
+<select id="buscarUnaMarca" parameterType="java.lang.Integer"  resultType="GtsSoftware.marca.MarcaBeanData">
+select 
+M.IdMarca as codigo
+,M.Nombre as nombre
+,M.Descripcion as descripcion
+from MARCA M where M.IdMarca=#{codigo}
+</select>
+
+
+<select id="buscarTipoActivo" resultType="GtsSoftware.activo.TipoActivoBeanData">
+select 
+TIPOACTIVO.IdTipoActivo as codigo
+,TIPOACTIVO.Nombre as nombre
+,TIPOACTIVO.Descripcion as descripcion
+,TIPOACTIVO.IdTipoActivoPadre as tipoActivoPadre
+from TIPOACTIVO
+</select>
+
+<!-- BUSCA todos los tipos de moneda de la BD -->
+<select id="buscarTipoMonedas" resultType="GtsSoftware.tipomoneda.TipoMonedaBeanData">
+select 
+T.IdTipoMoneda as codigo
+,T.Nombre as nombre
+,T.Sigla as sigla
+from TIPOMONEDA T
+</select>
+
+
+<!-- BUSCA todos los activos de la BD,con estado diferente a 4, de baja -->
+<select id="buscarActivos" resultType="GtsSoftware.activo.ActivoBeanData">
+select 
+A.IdActivo as codigo
+,A.NumeroActivo as numeroSerie
+,A.CodigoPatrimonial as codigoPatrimonial
+,A.Estado as estado
+from ACTIVO A
+where A.Estado!=4
+</select>
+
+
+<!-- BUSCA todos los locales de la BD -->
+<select id="buscarLocales" resultType="GtsSoftware.local.LocalBeanData">
+select 
+L.IdLocal as codigo
+,L.Nombre as nombre
+,L.Descripcion as descripcion
+,L.IdLocalPadre as idLocalPadre
+from LOCAL L
+</select>
+
+
+
+<!-- BUSCA todos los locales de la BD -->
+<select id="buscarMarcas" resultType="GtsSoftware.marca.MarcaBeanData">
+select 
+M.IdMarca as codigo
+,M.Nombre as nombre
+,M.Descripcion as descripcion
+from MARCA M
+</select>
+
+
+<!-- BUSCA todos los proveedores de la BD -->
+<select id="buscarProveedores" resultType="GtsSoftware.proveedor.ProveedorBeanData">
+select 
+P.IdProveedor as codigo
+,P.RazonSocial as razonSocial
+,P.RUC as ruc
+,P.Telefono1 as telefono1
+,P.CorreoElectronico1 as correoElectronico
+from PROVEEDOR P
+</select>
+
+
+
+ <!-- Modificar proceso, lo del lado derecho es conforme esta en tu .java -->
+<update id="modificarActividad" parameterType="GtsSoftware.actividad.ActividadBeanData">
+update SUBPROCESO set SUBPROCESO.Nombre=#{nombre}
+ ,SUBPROCESO.FechaActual=#{fechaActual}
+ ,SUBPROCESO.Descripcion=#{descripcion}
+ ,SUBPROCESO.Estado=#{estado}
+ where SUBPROCESO.IdSubProceso= #{codigo}
+</update>
+
+
+<update id="modificarActivo" parameterType="GtsSoftware.activo.ActivoBeanData">
+update ACTIVO set ACTIVO.MotivoBaja=#{motivoBaja}
+ ,ACTIVO.Estado=#{estado}
+ ,ACTIVO.FechaBaja=#{fechaBaja}
+ where ACTIVO.IdActivo= #{codigo}
+</update>
+
+
+<update id="modificarActivoGeneral" parameterType="GtsSoftware.activo.ActivoBeanData">
+update ACTIVO set
+ ACTIVO.NumeroActivo=#{numeroSerie}
+ ,ACTIVO.CodigoPatrimonial=#{codigoPatrimonial}
+ ,ACTIVO.IdTipoActivo=#{tipoActivo}
+ ,ACTIVO.IdLocal=#{idLocal}
+ ,ACTIVO.IdProveedor=#{proveedor}
+ ,ACTIVO.IdMarca=#{idMarca}
+ ,ACTIVO.MontoCompra=#{montoCompra}
+ ,ACTIVO.IdTipoMoneda=#{tipoMoneda}
+ ,ACTIVO.FechaCompra=#{fechaCompra}
+ ,ACTIVO.FechaRegistro=#{fechaRegistro}
+ where ACTIVO.IdActivo= #{codigo}
+</update>
+
+
+<update id="modificarInventario" parameterType="GtsSoftware.activo.InventarioActivoBeanData">
+update INVENTARIO_ACTIVO IA set IA.Cantidad=#{cantidad}
+ where IA.IdInventario= #{idInventario}
+</update>
+
+
+<update id="modificarRepuesto" parameterType="GtsSoftware.activo.ActivoBeanData">
+update ACTIVO set ACTIVO.IdActivoPadre=#{idActivoPadre}
+ where ACTIVO.IdActivo= #{codigo}
+</update>
+
+  
+<!-- Busca el máximo codigo para poder generar el siguiente codigo -->
+<select id="sacarCodigo" resultType="java.lang.Integer">
+	select max(IdActivo) from ACTIVO
+</select>
+
+<select id="sacarCodigoInventario" resultType="java.lang.Integer">
+	select max(IdInventario) from INVENTARIO_ACTIVO
+</select>
+
+<select id="sacarCodigoProgramacionActivo" resultType="java.lang.Integer">
+	select max(IdActivoProgramado) from ACTIVOXPROGRAMACION
+</select>
+
+
+<select id="contarCantidadActivoHistorico" resultType="java.lang.Float">
+select COALESCE(count(*),0)
+FROM H_PROGRAMACIONEJECUTADA
+where IdProgramacion = #{idProgramacion}
+</select>
+
+
+
+<select id="buscarProgramacionHistoricoIdActivo" parameterType="java.lang.Integer"  resultType="GtsSoftware.programacion.ProgramacionHistoricoBeanData">
+select
+P.IdHistoricoProgramacion idHistoricoProgramacion
+,P.IdProgramacion idProgramacion
+,P.IdPersonalEjecutor idPersonalEjecutor
+,P.IdPersonalResponsable idPersonalResponsable
+,P.CondicionesEquipo condicionesEquipo
+,P.FechaRegistro fechaRegistro
+,P.IdActivo idActivo
+FROM H_PROGRAMACIONEJECUTADA P
+where P.IdActivo=#{idActivo}
+</select>
+ 
+</mapper>

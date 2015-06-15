@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Data.mappers.personal">
+  <cache />
+  
+  <!-- Buscar Personal -->
+<select id="buscarPersonal" parameterType="GtsSoftware.personal.PersonalData" resultType="GtsSoftware.personal.PersonalData">
+SELECT
+	P.IdPersonal as codigo,
+	p.Nombre as nombre, 
+	p.ApellidoPaterno as apPaterno,
+	p.ApellidoMaterno as apMaterno,
+	p.DNI as dni,
+	p.Sexo as sexo,
+	COALESCE(p.Direccion,'') as direccion,
+	p.FechaNac as fecNacimiento,
+	p.FechaIngreso as fecIngreso,
+	COALESCE(p.Telefono1,'') as telefono1,
+	COALESCE(p.Telefono2,'') as telefono2,
+	p.CorreoElec as correo,
+	p.Estado as estado,
+	COALESCE(u.IdUsuario,0) as codigoUsuario,
+	COALESCE(u.Nombre,'NO TIENE') as username,
+	Coalesce(p.IdArea,0) as IdArea,
+	COALESCE(a.Nombre, 'No Tiene') As nombreArea
+FROM personal p
+left join usuario u on p.IdPersonal = u.IdPersonal
+left join area a ON p.IdArea = a.IdArea
+<where>
+		p.Estado = #{estado}
+	<if test="nombre != null ">
+        and p.Nombre  like  #{nombre} 
+    </if> 
+    <if test="apPaterno != null ">
+        and p.ApellidoPaterno  like  #{apPaterno} 
+    </if>  
+    <if test="apMaterno != null ">
+        and p.ApellidoMaterno  like  #{apMaterno} 
+    </if>    
+    <if test="codigo != 0 ">
+    	and p.IdPersonal = #{codigo}
+     </if>  
+     <if test="idArea != 0 ">
+    	and p.IdArea = #{idArea}
+     </if>  
+</where>
+</select>
+
+  <!-- Buscar Personal -->
+<select id="buscarPersonalUnico" parameterType="GtsSoftware.personal.PersonalData" resultType="GtsSoftware.personal.PersonalData">
+SELECT
+	P.IdPersonal as codigo,
+	p.Nombre as nombre, 
+	p.ApellidoPaterno as apPaterno,
+	p.ApellidoMaterno as apMaterno,
+	COALESCE(p.DNI,'') as dni,
+	p.Sexo as sexo,
+	COALESCE(p.Direccion,'') as direccion,
+	p.FechaNac as fecNacimiento,
+	p.FechaIngreso as fecIngreso,
+	COALESCE(p.Telefono1,'') as telefono1,
+	COALESCE(p.Telefono2,'') as telefono2,
+	COALESCE(p.CorreoElec,'') as correo,
+	p.Estado as estado,
+	COALESCE(u.IdUsuario,0) as codigoUsuario,
+	COALESCE(u.Nombre,'NO TIENE') as username,
+	Coalesce(p.IdArea,0) as IdArea,
+	COALESCE(a.Nombre, 'No Tiene') As nombreArea
+FROM personal p
+left join usuario u on p.IdPersonal = u.IdPersonal
+left join area a ON p.IdArea = a.IdArea
+<where>
+	p.IdPersonal = #{codigo}
+</where>
+</select>
+<!-- Agregar nuevo usuario -->
+<insert id="insertarPersonal" parameterType="GtsSoftware.usuario.UsuarioBeanData" flushCache="true">
+INSERT INTO Personal(IdPersonal,Nombre, ApellidoPaterno,ApellidoMaterno,DNI,FechaNac,Sexo,Direccion,Telefono1,Telefono2,CorreoElec,Estado, IdArea)
+VALUES(#{codigo},#{nombre},#{apPaterno},#{apMaterno},#{dni},#{fecNacimiento},#{sexo},#{direccion},#{telefono1},#{telefono2},#{correo},#{estado},#{IdArea})
+</insert>
+
+<update id="actualizarPersonal" parameterType="GtsSoftware.personal.PersonalData" >
+UPDATE Personal SET Nombre = #{nombre},ApellidoPaterno=#{apPaterno},ApellidoMaterno=#{apMaterno},dni=#{dni},sexo=#{sexo},Direccion=#{direccion},
+FechaNac =#{fecNacimiento},telefono1=#{telefono1},telefono2=#{telefono2},CorreoElec=#{correo},IdArea = #{IdArea}
+where IdPersonal = #{codigo}
+</update>
+<select id="buscarArea" parameterType="GtsSoftware.personal.AreaData" resultType="GtsSoftware.personal.AreaData">
+SELECT
+	P.IdArea as codigo,
+	p.Nombre as nombre, 
+	COALESCE(p.Descripcion,'') as descripcion,
+	p.Estado as estado
+FROM area p
+<where>
+		p.Estado = #{estado}
+	<if test="nombre != null ">
+        and p.Nombre  like  #{nombre} 
+    </if> 
+    <if test="codigo != 0 ">
+    	and p.IdArea = #{codigo}
+     </if>  
+</where>
+</select>
+<select id="comboArea" resultType="GtsSoftware.personal.AreaData">
+SELECT 0 codigo, 'Todos' nombre
+UNION ALL
+SELECT
+IdArea codigo,
+Nombre nombre
+FROM AREA
+Where Estado =1
+</select>
+
+<select id="comboCurso" resultType="GtsSoftware.personal.CursoData">
+SELECT 0 codigo, 'Curso Libre' nombre
+UNION ALL
+SELECT 
+C.IdCurso codigo,
+C.Nombre nombre
+from curso C
+WHERE estado =1 
+</select>
+
+<select id="buscarCurso" parameterType="GtsSoftware.personal.CursoData" resultType="GtsSoftware.personal.CursoData">
+SELECT 
+C.IdCurso codigo,
+C.Nombre nombre,
+C.Descripcion descripcion,
+C.HoraAcademicas horasAcademicas,
+Coalesce(C.IdArea,0) codigoArea,
+COALESCE(A.Nombre,'Todos') nombreArea,
+C.Estado estado
+from curso C
+left join area A ON C.IdArea = A.IdArea
+<where>
+		C.Estado = #{estado}
+	<if test="nombre != null ">
+        and C.Nombre  like  #{nombre} 
+    </if> 
+    <if test="codigo != 0 ">
+    	and C.IdCurso = #{codigo}
+     </if>  
+      <if test="codigoArea != 0 ">
+    	and C.IdArea = #{codigoArea}
+     </if>  
+</where>
+</select>
+
+<select id="buscarCapacitacion" parameterType="GtsSoftware.personal.CapacitacionData" resultType="GtsSoftware.personal.CapacitacionData">
+SELECT 
+cap.IdCapacitacion codigo,
+cap.Nombre nombre,
+cap.Descripcion descripcion,
+cap.FechaInicio fechaInicio,
+cap.FechaFin fechaFin,
+cap.Estado estado,
+COALESCE(cap.IdCurso,0) codigoCurso,
+COALESCE(cur.Nombre,'Curso Libre') nombreCurso,
+COALESCE(cap.IdArea,0) codigoArea,
+COALESCE(a.Nombre,'Todos') nombreArea
+from capacitacion cap
+left join curso cur ON cap.IdCurso = cur.IdCurso
+left join area a ON cap.IdArea = a.IdArea
+<where>
+		cap.Estado = #{estado}
+	<if test="nombre != null ">
+        and cap.Nombre  like  #{nombre} 
+    </if> 
+    <if test="codigo != 0 ">
+    	and cap.IdCapacitacion = #{codigo}
+     </if>  
+      <if test="codigoArea != 0 ">
+    	and car.IdArea = #{codigoArea}
+     </if>  
+     <if test="codigoCurso != 0 ">
+    	and car.IdCurso = #{codigoCurso}
+     </if> 
+</where>
+</select>
+
+
+<!-- Sacar codigo Personal -->
+<select id="sacarCodigo" resultType="java.lang.Integer">
+	select MAX(IdPersonal) from Personal
+</select>
+<select id="codigoRol"  parameterType = "java.lang.String" resultType="java.lang.Integer">
+SELECT COALESCE(IdRol,0)
+FROM usuario
+where Nombre= #{user}
+</select>
+
+<select id="allDiasNoLaboral" resultType="GtsSoftware.personal.diasnolaboralData" >
+Select 
+idFestivo codigo,
+nombreDia nombre,
+fecha fecha,
+motivo motivo
+from dias_nolaborables
+order by fecha desc
+</select>
+
+<!-- Sacar codigo Area -->
+<select id="sacarCodigoArea" resultType="java.lang.Integer">
+	select COALESCE(MAX(IdArea),0)+1
+	FROM area
+</select>
+<delete id="borrarDiaNoLaboral" parameterType="java.lang.Integer" >
+DELETE FROM dias_nolaborables
+where idFestivo = #{codigo}
+</delete>
+
+<!-- Agregar nuevo usuario -->
+<insert id="insertarArea" parameterType="GtsSoftware.personal.AreaData" flushCache="true">
+INSERT INTO Area(IdArea,Nombre, Descripcion,Estado)
+VALUES(#{codigo},#{nombre},#{descripcion},#{estado})
+</insert>
+<!-- Agregar nuevo usuario -->
+<insert id="insertarDia" parameterType="GtsSoftware.personal.diasnolaboralData" flushCache="true">
+INSERT INTO dias_nolaborables(nombreDia, fecha,motivo)
+VALUES(#{nombre},#{fecha},#{motivo})
+</insert>
+
+<insert id="insertarCurso" parameterType="GtsSoftware.personal.CursoData" flushCache="true">
+INSERT INTO Curso(Nombre, Descripcion,HoraAcademicas,Estado,IdArea)
+VALUES(#{nombre},#{descripcion},#{horasAcademicas},1,#{codigoArea})
+</insert>
+<insert id="insertarCapacitacion" parameterType="GtsSoftware.personal.CapacitacionData" flushCache="true">
+INSERT INTO Capacitacion(Nombre, Descripcion,fechaInicio,fechaFin,Estado,IdArea,IdCurso)
+VALUES(#{nombre},#{descripcion},#{fechaInicio},#{fechaFin},1,#{codigoArea},#{codigoCurso})
+</insert>
+
+</mapper>

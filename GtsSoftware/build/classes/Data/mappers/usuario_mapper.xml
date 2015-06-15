@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Data.mappers.usuario">
+  <cache />
+  
+ <!-- Buscar Usuario -->
+<select id="buscarUsuario" parameterType="GtsSoftware.usuario.CriterioUsuarioBeanData" resultType="GtsSoftware.usuario.ResultadoUsuarioBeanData">
+SELECT 
+    U.IdUsuario as codigo,
+	U.Nombre as nombre,
+	U.Estado as estado,
+	R.IdRol as codrol,
+	R.Nombre as rol
+FROM
+    USUARIO U
+    Left join ROL R ON U.IdRol = R.IdRol
+<where>
+		U.Estado = #{estado}
+	<if test="nombre != null ">
+        and U.Nombre  like  #{nombre} 
+    </if>    
+    <if test="rol != 0 ">
+    	and U.IdRol = #{rol}
+     </if>  
+    <if test="codigo != 0 ">
+    	and U.IdUsuario = #{codigo}
+     </if>  
+</where>
+</select>
+
+ <!-- Buscar Usuario -->
+<select id="buscarUsuarioUnico" parameterType="GtsSoftware.usuario.UsuarioBeanData" resultType="GtsSoftware.usuario.ResultadoUsuarioBeanData">
+SELECT 
+    U.IdUsuario as codigo,
+	U.Nombre as nombre,
+	U.Estado as estado,
+	R.IdRol as codrol,
+	R.Nombre as rol
+FROM
+    USUARIO U
+    Left join ROL R ON U.IdRol = R.IdRol
+<where>
+    U.IdUsuario = #{codigo}
+</where>
+</select>
+<!-- Modificar Usuario -->
+<update id="modificarUsuario" parameterType="GtsSoftware.usuario.UsuarioBeanData" flushCache="true">
+	UPDATE USUARIO SET Nombre = #{nombre}, IdRol = #{rol}
+	WHERE IdUsuario = #{codigo}
+</update>
+
+<!-- Agregar Usuario- Sin personal relacionado -->
+<insert id="insertarUsuario" parameterType="GtsSoftware.usuario.UsuarioBeanData" flushCache="true">
+	INSERT INTO USUARIO(IdUsuario,IdRol,Nombre,Contrasenha, IdPersonal, Estado)
+	VALUES (#{codigo},#{rol},#{nombre},#{contrasenha},#{codigoPersonal},#{estado}) <!-- esto a nivel de clases de java en este ejemplo, ProcesoBeanData-->
+</insert>
+ 
+ <!-- Buscar ID máximo -->
+ <!-- Busca el máximo codigo para poder generar el siguiente codigo -->
+<select id="sacarCodigo" resultType="java.lang.Integer">
+	select MAX(Idusuario) from USUARIO
+</select>
+
+<!-- Desactivar usuario -->
+<update id="estadoUsuario" parameterType="GtsSoftware.usuario.UsuarioBeanData" flushCache="true">
+	UPDATE USUARIO SET ESTADO = #{estado}
+	WHERE IdUsuario = #{codigo}
+</update>
+
+<!-- Saca estado -->
+<select id="sacarEstado" parameterType="GtsSoftware.usuario.UsuarioBeanData"  resultType="java.lang.Integer" flushCache="true">
+	select Estado from USUARIO
+	WHERE IdUsuario = #{codigo}
+</select>
+
+
+<!--
+******************************************************************************
+					ROL
+******************************************************************************
+  -->
+<!-- Seleccionar Rol -->
+<select id="cmbRol" resultType="GtsSoftware.usuario.ResultadoRol" flushCache="true">
+	SELECT
+	IdRol as codigo,
+	Nombre as nombre
+	FROM rol
+	ORDER By Nombre
+</select>
+
+<!-- Obtener Roles -->
+<select id="buscarRol" parameterType="GtsSoftware.usuario.CriterioRolBeanData" resultType="GtsSoftware.usuario.ResultadoRolData">
+SELECT 
+	R.IdRol as codigo,
+	R.Nombre as nombre,
+	R.Descripcion as descripcion,
+	R.Estado as estado
+FROM
+    ROL R 
+<where>
+		R.Estado = #{estado}
+	<if test="nombre != null ">
+        and R.Nombre  like  #{nombre} 
+    </if>    
+    <if test="codigo != 0 ">
+    	and R.IdRol = #{codigo}
+     </if>  
+</where>
+</select>
+
+<!-- Agregar Rol -->
+<insert id="insertarRol" parameterType="GtsSoftware.usuario.ResultadoRolData" flushCache="true">
+	INSERT INTO ROL (IdRol,Nombre,Descripcion,Estado)
+	Values (#{codigo},#{nombre},#{descripcion},#{estado})
+</insert>
+
+<select id="sacarCodigoRol" resultType="java.lang.Integer">
+	select MAX(IdRol) from ROL
+</select>
+
+<!-- Desactivar rol -->
+<update id="estadoRol" parameterType="GtsSoftware.usuario.ResultadoRolData" flushCache="true">
+	UPDATE Rol SET ESTADO = #{estado}
+	WHERE IdRol = #{codigo}
+</update>
+
+<!-- Saca estado rol -->
+<select id="sacarEstadoRol" parameterType="GtsSoftware.usuario.ResultadoRolData"  resultType="java.lang.Integer" flushCache="true">
+	select Estado from ROL
+	WHERE IdRol = #{codigo}
+</select>
+
+<!-- Modificar Rol -->
+<update id="modificarRol" parameterType="GtsSoftware.usuario.ResultadoRolData" flushCache="true">
+	UPDATE Rol SET Nombre = #{nombre}, Descripcion = #{descripcion}
+	WHERE IdRol = #{codigo}
+</update>
+
+<!-- Obtener Rol -->
+<select id="buscarRolUnico" parameterType="GtsSoftware.usuario.CriterioRolBeanData" resultType="GtsSoftware.usuario.ResultadoRolData">
+SELECT 
+	R.IdRol as codigo,
+	R.Nombre as nombre,
+	R.Descripcion as descripcion,
+	R.Estado as estado
+FROM
+    ROL R 
+<where>
+    R.IdRol = #{codigo} 
+</where>
+</select>
+
+</mapper>

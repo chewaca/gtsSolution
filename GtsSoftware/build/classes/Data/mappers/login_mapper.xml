@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Data.mappers.login">
+
+  <cache />
+
+<select id="getUsuarioLogin" parameterType="String" resultType="String">
+select NombreUsuario from USUARIO where NombreUsuario = #{user};
+</select>
+
+<select id="getUsuarioBeanData" parameterType="GtsSoftware.general.UsuarioBeanData" resultType="GtsSoftware.general.UsuarioBeanData">
+select 	Nombre as nombUsuario,
+		Contrasenha as password,
+		Estado as estado		 
+from USUARIO U where U.Nombre=#{nombUsuario} and U.Contrasenha = #{password} and U.Estado =1;
+</select>
+
+</mapper>

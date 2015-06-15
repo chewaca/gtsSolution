@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Data.mappers.programacion">
+
+  <cache />
+<insert id="insertarProgramacion" parameterType="GtsSoftware.programacion.ProgramacionBeanData" flushCache="true">
+ INSERT INTO PROGRAMACION(IdProgramacion,IdProceso,IdOcurrencia,Ocurrencia,FechaInicio,FechaFin,Descripcion,Estado,Dias,Hora,ProxFechaEjecucion,IdSubproceso)
+ Values (#{codigo},#{idProceso},#{idOcurrencia},#{ocurrencia},#{fechaInicio},#{fechaFin},#{descripcion},#{estado},#{dias},#{hora},#{proxFechaEjecucion},#{idSubproceso})
+</insert>
+
+
+
+<insert id="insertarProgramacionHistorico" parameterType="GtsSoftware.programacion.ProgramacionHistoricoBeanData" flushCache="true">
+ INSERT INTO H_PROGRAMACIONEJECUTADA(IdHistoricoProgramacion,IdProgramacion,FechaRegistro,IdPersonalEjecutor,IdPersonalResponsable,HorasHombre,CondicionesEquipo,IdProveedor,IdActivo)
+ Values (#{idHistoricoProgramacion},#{idProgramacion},#{fechaRegistro},#{idPersonalEjecutor},#{idPersonalResponsable},#{horasHombre},#{condicionesEquipo},#{idProveedor},#{idActivo})
+</insert>
+
+<update id="actualizaActivoxProgramacion" parameterType="GtsSoftware.programacion.ProgramacionHistoricoBeanData" flushCache="true">
+UPDATE ACTIVOXPROGRAMACION SET Estado = 1
+where IdProgramacion=#{idProgramacion} and IdActivo = #{idActivo}
+</update>
+
+<update id="reiniciaActivoxProgramacion" parameterType="GtsSoftware.programacion.ProgramacionBeanData" flushCache="true">
+UPDATE ACTIVOXPROGRAMACION SET Estado = 0
+where IdProgramacion=#{codigo}
+</update>
+
+
+<!-- Busca el máximo codigo para poder generar el siguiente codigo -->
+<select id="sacarCodigo" resultType="java.lang.Integer">
+	select max(IdProgramacion) from PROGRAMACION
+</select>
+
+
+
+<select id="sacarCodigoHistorico" resultType="java.lang.Integer">
+	select max(IdHistoricoProgramacion) from H_PROGRAMACIONEJECUTADA
+</select>
+
+
+<select id="buscarProgramacion" parameterType="GtsSoftware.programacion.CriterioProgramacionBeanData" resultType="GtsSoftware.programacion.ResultadoProgramacionBeanData">
+SELECT 
+P.IdProgramacion idProgramacion
+,P.Descripcion descripcion
+,C.Nombre idOcurrencia
+,P.Ocurrencia ocurrencia
+,P.FechaInicio fechaInicio
+,P.FechaFin fechaFin
+,P.Estado estado
+FROM PROGRAMACION P
+LEFT OUTER JOIN OCURRENCIA C ON P.IdOcurrencia=C.IdOcurrencia
+<where>
+	<if test="nombre != null ">
+        P.Descripcion  like  #{descripcion}
+    </if>
+     <if test="estado != null">
+        AND P.Estado like #{estado}
+    </if>
+    
+</where>
+</select>
+<!-- Fin agregar  -->
+
+
+<select id="buscarActividadesProgramacion" parameterType="java.lang.Integer"  resultType="GtsSoftware.programacion.ResultadoProgramacionBeanData">
+select
+P.IdActividadProgramada idActividadProgramada
+,P.IdActividad idActividad
+,P.IdProgramacion idProgramacion
+FROM ACTIVIDADPROGRAMACION P
+where P.IdProgramacion=#{idProgramacion}
+</select>
+
+
+<select id="buscarActivoProgramacion" parameterType="java.lang.Integer"  resultType="GtsSoftware.programacion.ResultadoProgramacionBeanData">
+select
+P.IdActivoProgramado IdActivoProgramado
+,P.IdActivo idActivo
+,P.IdProgramacion idProgramacion
+FROM ACTIVOXPROGRAMACION P
+where P.IdProgramacion=#{idProgramacion}
+</select>
+
+
+
+<select id="contarActivoProgramacion" resultType="java.lang.Float">
+select COALESCE(count(*),0) FROM ACTIVOXPROGRAMACION P
+where P.IdProgramacion=#{idProgramacion}
+</select>
+
+
+<select id="buscarActividad" parameterType="java.lang.Integer"  resultType="GtsSoftware.actividad.ResultadoActividadBeanData">
+select 
+ACTIVIDAD.IdActividad as codigo
+,ACTIVIDAD.Nombre as nombre
+,ACTIVIDAD.Descripcion as descripcion
+,ACTIVIDAD.Tipo as tipo
+from ACTIVIDAD where ACTIVIDAD.IdActividad=#{codigo}
+</select>
+
+
+<select id="buscarActivo" parameterType="java.lang.Integer"  resultType="GtsSoftware.activo.ResultadoActivoBeanData">
+select 
+A.IdActivo as codigo
+,A.Nombre as nombre
+,A.Descripcion as descripcion
+,A.NumeroActivo as numeroSerie
+,A.IdLocal as idLocal
+,A.IdProveedor as idProveedor
+,A.IdMarca as idMarca
+,A.FechaVencimientoGarantia as fechaVencimientoGarantia
+from ACTIVO A where A.IdActivo=#{codigo}
+</select>
+
+<select id="buscarActivoxProgramación" parameterType="java.lang.Integer"  resultType="GtsSoftware.activo.ResultadoActivoBeanData">
+SELECT 
+axp.IdActivo codigo, 
+a.NumeroActivo numeroSerie,
+t.Nombre nombre,
+axp.IdTipoActivo idTipoActivo,
+m.IdMarca idMarca,
+m.Nombre marca,
+a.IdProveedor idProveedor,
+P.RazonSocial razonSocial,
+l.IdLocal idLocal,
+l.Nombre local,
+a.FechaVencimientoGarantia fechaVencimientoGarantia,
+COALESCE(axp.Estado,0) estado
+from activoxprogramacion axp
+left join activo a ON axp.IdActivo = a.IdActivo
+left join marca m ON a.IdMarca = m.IdMarca
+left join proveedor p ON a.IdProveedor = p.IdProveedor
+left join local l ON a.IdLocal = l.IdLocal
+left join tipoactivo t ON axp.IdTipoActivo=t.IdTipoActivo
+Where axp.IdProgramacion =  #{codigo}
+</select>
+
+<select id="buscarProgramacionEstado" parameterType="java.lang.Integer"  resultType="GtsSoftware.programacion.ResultadoProgramacionBeanData">
+select
+P.IdProgramacion idProgramacion
+,P.IdSubProceso idSubproceso
+,P.Descripcion descripcion
+,P.IdOcurrencia idOcurrencia
+,P.Ocurrencia ocurrencia
+,P.Hora hora
+,P.Dias dias
+,P.Nombre nombre
+,P.FechaInicio fechaInicio
+,P.FechaFin fechaFin
+,P.Estado estado
+FROM PROGRAMACION P
+where P.Estado=#{estado}
+</select>
+
+<select id="buscarProgramacionPendientes" parameterType="java.lang.Integer"  resultType="GtsSoftware.programacion.ResultadoProgramacionBeanData">
+select
+P.IdProgramacion idProgramacion
+,P.IdSubProceso idSubproceso
+,P.Descripcion descripcion
+,P.IdOcurrencia idOcurrencia
+,P.Ocurrencia ocurrencia
+,P.Hora hora
+,P.Dias dias
+,P.Nombre nombre
+,P.FechaInicio fechaInicio
+,P.FechaFin fechaFin
+,1 estado
+,P.ProxFechaEjecucion fechaEjecucion
+,DATEDIFF(ProxFechaEjecucion,curdate()) diasRestante
+,S.Nombre nombSubproceso
+,S.Orden orden
+,S.IdProceso idProceso
+,PR.Nombre nombProceso
+,COALESCE(S.IdRolResponsable,0) codigoRolEjecutor
+,COALESCE(R.Nombre, 'No tiene') nombreRolEjecutor
+FROM PROGRAMACION P
+Left join SUBPROCESO S ON P.IdSubProceso = S.IdSubProceso
+Left join proceso PR ON S.IdProceso=PR.IdProceso
+left join rol R ON S.IdRolResponsable = R.IdRol
+WHERE
+(select Coalesce(Valor,15)
+from configuracion_programacion
+where IdConfiguracion = 1) >=DATEDIFF(ProxFechaEjecucion,curdate())
+AND DATEDIFF(ProxFechaEjecucion,curdate()) >=0
+AND P.Estado=1
+</select>
+
+<select id="buscarProgramacionNoEjecutadas" parameterType="java.lang.Integer"  resultType="GtsSoftware.programacion.ResultadoProgramacionBeanData">
+select
+P.IdProgramacion idProgramacion
+,P.IdSubProceso idSubproceso
+,P.Descripcion descripcion
+,P.IdOcurrencia idOcurrencia
+,P.Ocurrencia ocurrencia
+,P.Hora hora
+,P.Dias dias
+,P.Nombre nombre
+,P.FechaInicio fechaInicio
+,P.FechaFin fechaFin
+,4 estado
+,P.ProxFechaEjecucion fechaEjecucion
+,DATEDIFF(curdate(),ProxFechaEjecucion) diasRestante
+,S.Nombre nombSubproceso
+,S.Orden orden
+,S.IdProceso idProceso
+,PR.Nombre nombProceso
+,COALESCE(S.IdRolResponsable,0) codigoRolEjecutor
+,COALESCE(R.Nombre, 'No tiene') nombreRolEjecutor
+FROM PROGRAMACION P
+Left join SUBPROCESO S ON P.IdSubProceso = S.IdSubProceso
+Left join proceso PR ON S.IdProceso=PR.IdProceso
+left join rol R ON S.IdRolResponsable = R.IdRol
+WHERE
+DATEDIFF(curdate(),ProxFechaEjecucion) >0
+AND P.Estado=1
+</select>
+
+<select id="buscarProgramacionEnEjecucion" parameterType="java.lang.Integer"  resultType="GtsSoftware.programacion.ResultadoProgramacionBeanData">
+select
+P.IdProgramacion idProgramacion
+,P.IdSubProceso idSubproceso
+,P.Descripcion descripcion
+,P.IdOcurrencia idOcurrencia
+,P.Ocurrencia ocurrencia
+,P.Hora hora
+,P.Dias dias
+,P.Nombre nombre
+,P.FechaInicio fechaInicio
+,P.FechaFin fechaFin
+,P.Estado estado
+,P.FechaEjecucion fechaEjecucion
+,DATEDIFF(curdate(),P.FechaEjecucion) diasRestante
+,S.Nombre nombSubproceso
+,S.Orden orden
+,S.TiempoEstimado tiempoEstimado
+,S.IdProceso idProceso
+,PR.Nombre nombProceso
+,COALESCE(S.IdRolEjecutor,0) codigoRolEjecutor
+,COALESCE(R.Nombre, 'No tiene') nombreRolEjecutor
+FROM PROGRAMACION P
+Left join SUBPROCESO S ON P.IdSubProceso = S.IdSubProceso
+Left join proceso PR ON S.IdProceso=PR.IdProceso
+left join rol R ON S.IdRolEjecutor = R.IdRol
+WHERE
+ P.Estado=2
+</select>
+<select id="buscarProgramacionEjecutadas"  resultType="GtsSoftware.programacion.ResultadoProgramacionBeanData">
+SELECT 
+H.IdProgramacion idProgramacion
+,H.IdSubProceso idSubproceso
+,P.Descripcion descripcion
+,H.IdOcurrencia idOcurrencia
+,H.FechaInicioEjecucion fechaInicio
+,H.FechaFinEjecucion fechaFin
+,3 estado
+,DATEDIFF(H.FechaFinEjecucion,H.FechaInicioEjecucion-1) diasRestante
+,S.Nombre nombSubproceso
+,S.Orden orden
+,S.TiempoEstimado tiempoEstimado
+,S.IdProceso idProceso
+,PR.Nombre nombProceso 
+,H.IdUsuarioEjecutor
+,U.Nombre usuarioEjecutor
+from h_programacion H
+left join programacion P ON H.IdProgramacion = P.IdProgramacion
+left join subproceso S ON H.IdSubproceso = S.IdSubProceso
+left join proceso PR ON H.IdProceso = PR.IdProceso
+left join usuario U ON H.IdUsuarioEjecutor= U.IdUsuario
+</select>
+
+<select id="buscarProgramacionEjecutadasID" parameterType="java.lang.Integer"  resultType="GtsSoftware.programacion.ResultadoProgramacionBeanData">
+SELECT 
+H.IdProgramacion idProgramacion
+,H.IdSubProceso idSubproceso
+,P.Descripcion descripcion
+,H.IdOcurrencia idOcurrencia
+,H.FechaInicioEjecucion fechaInicio
+,H.FechaFinEjecucion fechaFin
+,3 estado
+,DATEDIFF(H.FechaFinEjecucion,H.FechaInicioEjecucion) diasRestante
+,S.Nombre nombSubproceso
+,S.Orden orden
+,S.TiempoEstimado tiempoEstimado
+,S.IdProceso idProceso
+,PR.Nombre nombProceso 
+,H.IdUsuarioEjecutor
+,U.Nombre usuarioEjecutor
+from h_programacion H
+left join programacion P ON H.IdProgramacion = P.IdProgramacion
+left join subproceso S ON H.IdSubproceso = S.IdSubProceso
+left join proceso PR ON H.IdProceso = PR.IdProceso
+left join usuario U ON H.IdUsuarioEjecutor= U.IdUsuario
+WHERE H.IdProgramacion = #{idProgramacion}
+</select>
+
+<select id="buscarProgramacionesHistoricas" parameterType="java.lang.Integer" resultType="GtsSoftware.programacion.ProgramacionHistoricoBeanData">
+select
+H.IdHistoricoProgramacion idHistoricoProgramacion
+,H.IdProgramacion idProgramacion
+,H.IdPersonalEjecutor idPersonalEjecutor
+,CONCAT(P.Nombre, ' ',P.ApellidoPaterno, ' ',P.ApellidoMaterno) personalEjecutor
+,H.IdPersonalResponsable idPersonalResponsable
+,CONCAT(P2.Nombre , ' ',P2.ApellidoPaterno,' ',P2.ApellidoMaterno) personalResponsable
+,H.CondicionesEquipo condicionesEquipo
+,H.IdActivo idActivo
+,H.FechaRegistro fechaRegistro
+,H.IdActivo idActivo
+,H.HorasHombre horasHombre
+,A.numeroActivo numeroActivo
+,A.Nombre nombreActivo
+FROM H_PROGRAMACIONEJECUTADA H
+LEFT JOIN PERSONAL P ON H.IdPersonalEjecutor = P.IdPersonal
+LEFT JOIN PERSONAL P2 ON H.IdPersonalResponsable = P2.IdPersonal
+LEFT JOIN ACTIVO A ON H.IdActivo = A.IdActivo
+WHERE H.IdProgramacion = #{idProgramacion}
+</select>
+
+
+<select id="buscarProgramacionHistoricoId" parameterType="java.lang.Integer"  resultType="GtsSoftware.programacion.ProgramacionHistoricoBeanData">
+select
+P.IdHistoricoProgramacion idHistoricoProgramacion
+,P.IdProgramacion idProgramacion
+,P.IdPersonalEjecutor idPersonalEjecutor
+,P.IdPersonalResponsable idPersonalResponsable
+,P.CondicionesEquipo condicionesEquipo
+,P.FechaRegistro fechaRegistro
+FROM H_PROGRAMACIONEJECUTADA P
+where P.IdProgramacion=#{idProgramacion}
+</select>
+
+
+<select id="buscarProgramacionId" parameterType="java.lang.Integer"  resultType="GtsSoftware.programacion.ProgramacionBeanData">
+select
+P.IdProgramacion codigo
+,P.IdSubProceso idSubproceso
+,P.Descripcion descripcion
+,P.IdOcurrencia idOcurrencia
+,P.Ocurrencia ocurrencia
+,P.Hora hora
+,P.Dias dias
+,P.Nombre nombre
+,P.FechaInicio fechaInicio
+,P.FechaFin fechaFin
+,P.Estado estado
+FROM PROGRAMACION P
+where P.IdProgramacion=#{idProgramacion}
+</select>
+
+<update id="historicoProgramacion" parameterType="GtsSoftware.programacion.ProgramacionBeanData">
+INSERT INTO h_programacion(IdProgramacion,IdOcurrencia,IdSubproceso,IdProceso,Orden,FechaInicioEjecucion,FechaFinEjecucion,IdUsuarioEjecutor)
+Select P.IdProgramacion,P.IdOcurrencia,P.IdSubProceso,S.IdProceso, S.Orden,P.FechaEjecucion,curdate(),#{idUsuarioEjecutor}
+from programacion P
+left join subproceso S ON P.IdSubProceso = S.IdSubProceso
+where IdProgramacion = #{codigo};
+</update>
+
+<update id="siguienteProgramacion" parameterType="GtsSoftware.programacion.ProgramacionBeanData">
+update PROGRAMACION set PROGRAMACION.Estado=1,
+PROGRAMACION.FechaEjecucion= NULL,
+PROGRAMACION.ProxFechaEjecucion= curdate(),
+PROGRAMACION.IdSubproceso=#{idSubproceso}
+where PROGRAMACION.IdProgramacion= #{codigo}
+</update>
+
+<update id="validaFechaFin" parameterType="GtsSoftware.programacion.ProgramacionBeanData">
+UPDATE programacion SET Estado = CASE WHEN ProxFechaEjecucion > FechaFin THEN 0 ELSE 1 END
+WHeRE IdProgramacion = #{codigo}
+</update>
+
+<update id="siguienteProgramacionCiclo" parameterType="GtsSoftware.programacion.ProgramacionBeanData">
+update PROGRAMACION 
+set PROGRAMACION.Estado=1,
+PROGRAMACION.FechaEjecucion= NULL,
+PROGRAMACION.ProxFechaEjecucion= CASE WHEN IdOcurrencia = 1 THEN DATE_ADD(fechaInicio, interval COALESCE(PROGRAMACION.NroEjecuciones,0)+1 year)
+ELSE DATE_ADD(fechaInicio, interval COALESCE(PROGRAMACION.NroEjecuciones,0)+1 month) END,
+PROGRAMACION.IdSubproceso=#{idSubproceso},
+PROGRAMACION.NroEjecuciones = COALESCE(PROGRAMACION.NroEjecuciones,0)+1
+where PROGRAMACION.IdProgramacion= #{codigo}
+</update>
+
+<update id="modificarProgramacion" parameterType="GtsSoftware.programacion.ProgramacionBeanData">
+update PROGRAMACION set PROGRAMACION.Estado=2,PROGRAMACION.FechaEjecucion= curdate()
+ where PROGRAMACION.IdProgramacion= #{codigo}
+</update>
+
+<update id="modificarReprogramacion" parameterType="GtsSoftware.programacion.ProgramacionBeanData">
+update PROGRAMACION set PROGRAMACION.Hora=#{hora},PROGRAMACION.ProxFechaEjecucion=#{proxFechaEjecucion}
+ where PROGRAMACION.IdProgramacion= #{codigo}
+</update>
+
+<!-- Obtener prox Subproceso -->
+<select id="sacarProxSubproceso" parameterType="GtsSoftware.programacion.ProgramacionBeanData" resultType="java.lang.Integer">
+SELECT IdSubProceso
+FROM SubProceso
+where
+Orden= (
+SELECT COALESCE((Select Orden
+from subproceso
+where orden =
+(SELECT Orden
+FROM subproceso
+where IdSubProceso = (Select IdSubProceso from programacion where IdProgramacion =  #{codigo}))+1
+And IdProceso = (Select IdProceso from programacion where IdProgramacion =  #{codigo})),1))
+And IdProceso = (Select IdProceso from programacion where IdProgramacion =  #{codigo})
+</select>
+
+<!-- Obtener Orden de Subproceso -->
+<select id="ordenSubproceso" parameterType="GtsSoftware.programacion.ProgramacionBeanData" resultType="java.lang.Integer">
+SELECT Orden
+FROM SubProceso
+where IdSubProceso = #{idSubproceso}
+</select>
+
+<!--Buscar IdUsuario -->
+<select id="buscaIdUsuario" parameterType="java.lang.String" resultType="java.lang.Integer">
+select IdUsuario
+FROM usuario
+where Nombre = #{user}
+</select>
+
+<!-- Obtener Orden de Subproceso -->
+<select id="idSubprocesoPadre" parameterType="GtsSoftware.programacion.ProgramacionBeanData" resultType="java.lang.Integer">
+SELECT COALESCE(IdSubProcesoPadre,0) 
+FROM SubProceso
+where IdSubProceso = #{idSubproceso}
+</select>
+
+<update id="modificarConfiguracion" parameterType="GtsSoftware.general.ConfiguracionBeanData">
+update CONFIGURACION_PROGRAMACION C set C.Valor=#{valor}
+ where C.IdConfiguracion= #{idConfiguracion}
+</update>
+
+
+<update id="modificarProgramacionNoEjecutada" parameterType="GtsSoftware.programacion.ResultadoProgramacionBeanData">
+update PROGRAMACION set PROGRAMACION.Estado=#{estado}
+ where PROGRAMACION.IdProgramacion= #{idProgramacion}
+</update>
+
+
+<update id="modificarProgramacionOpcional" parameterType="GtsSoftware.programacion.ProgramacionBeanData">
+update PROGRAMACION set PROGRAMACION.IdPersonalAutoriso=#{idPersonalAutorizo}
+,PROGRAMACION.IdPersonalEncargado=#{idPersonalEncargado}
+,PROGRAMACION.HorasHombre=#{horasHombre}
+,PROGRAMACION.CondicionesEquipo=#{condicionesEquipo}
+ where PROGRAMACION.IdProgramacion= #{codigo}
+</update>
+
+
+<select id="buscarPersonal" parameterType="GtsSoftware.personal.CriterioPersonalBeanData" resultType="GtsSoftware.personal.ResultadoPersonalBeanData">
+select 
+PERSONAL.IdPersonal as idPersonal
+,PERSONAL.Nombre as nombre
+,PERSONAL.ApellidoPaterno as apellidoPaterno
+,PERSONAL.ApellidoMaterno as apellidoMaterno
+,PERSONAL.DNI as dni
+,PERSONAL.FechaNac as fechaNacimiento
+,PERSONAL.Telefono1 as telefono1
+,PERSONAL.CorreoElec as correoElectronico
+from PERSONAL
+<where>
+	<if test="nombre != null ">
+        PERSONAL.Nombre like #{nombre}
+    </if>
+         
+</where>
+</select>
+
+
+
+<select id="buscarProveedor" parameterType="GtsSoftware.proveedor.CriterioProveedorBeanData" resultType="GtsSoftware.proveedor.ResultadoProveedorBeanData">
+select 
+PROVEEDOR.IdProveedor as codigo
+,PROVEEDOR.RazonSocial as razonSocial
+,PROVEEDOR.RUC as ruc
+,PROVEEDOR.Telefono1 as telefono1
+,PROVEEDOR.CorreoElectronico1 as correoElectronico
+from PROVEEDOR
+<where>
+	<if test="razonSocial != null ">
+        PROVEEDOR.RazonSocial like #{razonSocial}
+    </if>
+         
+</where>
+</select>
+
+
+<select id="buscarPersonalID" parameterType="java.lang.Integer" resultType="GtsSoftware.personal.ResultadoPersonalBeanData">
+select 
+PERSONAL.IdPersonal as idPersonal
+,PERSONAL.Nombre as nombre
+,PERSONAL.ApellidoPaterno as apellidoPaterno
+,PERSONAL.ApellidoMaterno as apellidoMaterno
+,PERSONAL.DNI as dni
+,PERSONAL.FechaNac as fechaNacimiento
+,PERSONAL.Telefono1 as telefono1
+,PERSONAL.CorreoElec as correoElectronico
+from PERSONAL
+where PERSONAL.IdPersonal=#{idPersonalEjecutor}
+</select>
+
+ 
+</mapper>
