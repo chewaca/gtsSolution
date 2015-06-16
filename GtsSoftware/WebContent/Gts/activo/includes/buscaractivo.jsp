@@ -75,7 +75,7 @@
                         <div  align="right">
                        <a class="btn btn-primary" onclick='window.open("/GtsSoftware/Gts/activo/includes/uploadDocument.jsp","name","height=570,width=530");'> <i class="icon-file icon-white"></i> Subir documento</a> 
                             <!-- <input id="fileToLoad" name="fileToLoad" type="file" class="form_1"/> -->
-                               <a class="btn btn-primary" href="/GtsSoftware/Gts/activo/agregaractivo.jsp"> <i class="icon icon-add icon-white"></i> AGREGAR ACTIVO </a> 
+                               <a class="btn btn-primary" href="javascript:alt_agregar()"> <i class="icon icon-add icon-white"></i> AGREGAR ACTIVO </a> 
                                <a href="#" class="btn btn-minimize btn-round" ><i class="icon icon-chevron-up"></i></a>
                          </div>             
 				  </div>
@@ -99,7 +99,7 @@
 						     <div class="control-group">
 							    <label class="control-label" for="typeahead6">Nombre: </label>
 							    <div class="controls">
-							      <input type="text" class="span3 typeahead" id="txtNombre" name="txtNombre" data-provide="typeahead" data-items="4" value="<%=criterio.getNombre()%>">
+							      <input type="text" class="span3 typeahead" id="txtNombre" name="txtNombre" data-provide="typeahead" data-items="4" value="<%=criterio.getNombreExtra()%>">
 						        </div>
 						      </div>
 						      
@@ -112,7 +112,7 @@
 						      <div class="control-group">
 							    <label class="control-label" for="typeahead6">Número Serie: </label>
 							    <div class="controls">
-							      <input type="text" class="span2 typeahead" id="txtNumeroSerie" name="txtNumeroSerie" data-provide="typeahead" data-items="4" value="<%=criterio.getNumeroSerie()%>">
+							      <input type="text" class="span2 typeahead" id="txtNumeroSerie" name="txtNumeroSerie" data-provide="typeahead" data-items="4" value="<%=criterio.getNumeroSerieExtra()%>">
 						        </div>
 						      </div>
 						      

@@ -7,6 +7,7 @@
 <%@page import="GtsSoftware.local.LocalBeanData"%>
 <%@page import="GtsSoftware.activo.TipoActivoBeanData"%>
 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <link href="css/popups.css" rel="stylesheet">
 
 <script >
