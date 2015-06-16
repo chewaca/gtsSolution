@@ -41,7 +41,7 @@ public class ActivoBeanFuncion {
 		
 		activoData.setNumeroSerie(request.getParameter("txtNumeroSerie")==""?null:request.getParameter("txtNumeroSerie"));
 		activoData.setCodigoPatrimonial(request.getParameter("txtCodigoPatrimonial")==""?null:request.getParameter("txtCodigoPatrimonial"));
-//		activoData.setNombre((request.getParameter("txtNombre")));
+		activoData.setNombre((request.getParameter("cmbTipoActivo")));
 		Date fechaCompra=new Date(DF1.parse(request.getParameter("fFechaCompra")).getTime());
 		activoData.setFechaCompra(fechaCompra);
 		

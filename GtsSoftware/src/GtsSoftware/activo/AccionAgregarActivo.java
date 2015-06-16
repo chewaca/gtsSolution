@@ -30,37 +30,37 @@ public class AccionAgregarActivo extends CoAccion{
 			
 			if(activoData.getNombre()!=null){
 			
-			activoFuncion.agregarActivo(activoData);
-						
-			//SE AGREGA EL ACTIVO al Inventario
-			InventarioActivoBeanData inventarioData=activoFuncion.consultarEnInventario(activoData);
-			
-			if(inventarioData!=null){
-				//si ya existe, se aumenta la cantidad
-				Integer cantidadNueva=inventarioData.getCantidad()+1;
-				inventarioData.setCantidad(cantidadNueva);
-				activoFuncion.modificarCantidadInventario(inventarioData);				
+				activoFuncion.agregarActivo(activoData);
+							
+				//SE AGREGA EL ACTIVO al Inventario
+				InventarioActivoBeanData inventarioData=activoFuncion.consultarEnInventario(activoData);
+				
+				if(inventarioData!=null){
+					//si ya existe, se aumenta la cantidad
+					Integer cantidadNueva=inventarioData.getCantidad()+1;
+					inventarioData.setCantidad(cantidadNueva);
+					activoFuncion.modificarCantidadInventario(inventarioData);				
+				}
+				else{
+					//si no existe, se crea el registro con la cantidad de 1
+					InventarioActivoBeanData inventarioNuevoData=new InventarioActivoBeanData();
+					inventarioNuevoData.setIdTipoActivo(activoData.getTipoActivo());
+					inventarioNuevoData.setIdLocal(activoData.getIdLocal());
+					inventarioNuevoData.setCantidad(1);				
+					activoFuncion.agregarNuevoEnInventario(inventarioNuevoData);			
+				}			
+				
+				request.setAttribute("mensaje","OK");
+				request.setAttribute("activo", activoData);
+				
+				this.direccionar(sc, request, response, "/Gts/activo/buscaractivo.jsp");
 			}
 			else{
-				//si no existe, se crea el registro con la cantidad de 1
-				InventarioActivoBeanData inventarioNuevoData=new InventarioActivoBeanData();
-				inventarioNuevoData.setIdTipoActivo(activoData.getTipoActivo());
-				inventarioNuevoData.setIdLocal(activoData.getIdLocal());
-				inventarioNuevoData.setCantidad(1);				
-				activoFuncion.agregarNuevoEnInventario(inventarioNuevoData);			
-			}			
 			
-			request.setAttribute("mensaje","OK");
-			request.setAttribute("activo", activoData);
-			
-			this.direccionar(sc, request, response, "/Gts/activo/buscaractivo.jsp");
-			}
-			else{
-			
-			request.setAttribute("mensaje","Error");
-			request.setAttribute("mensajeDetalle","Falta especificar nombre del activo");
-			request.setAttribute("activo", activoData);
-			this.direccionar(sc, request, response, "/Gts/activo/agregaractivo.jsp");
+				request.setAttribute("mensaje","Error");
+				request.setAttribute("mensajeDetalle","Falta especificar nombre del activo");
+				request.setAttribute("activo", activoData);
+				this.direccionar(sc, request, response, "/Gts/activo/agregaractivo.jsp");
 			}
 			
 			
