@@ -89,10 +89,10 @@
 						   <input type="hidden" name="accion" value="Buscar"/></input>
 						  <fieldset>
 						  
-						   <% if (criterio.getNombre()!=null){
+						   <% if (criterio.getNombreExtra()!=null){
                           		Integer valor=1;    }
-					       	  if (criterio.getNombre()==null)
-         						criterio.setNombre(""); 
+					       	  if (criterio.getNombreExtra()==null)
+         						criterio.setNombreExtra(""); 
                           	%>
 						  
 						    <div class="control-group">						    
@@ -103,10 +103,10 @@
 						        </div>
 						      </div>
 						      
-						      <% if (criterio.getNumeroSerie()!=null){
+						      <% if (criterio.getNumeroSerieExtra()!=null){
                           		Integer valor=1;    }
-					       	  if (criterio.getNumeroSerie()==null)
-         						criterio.setNumeroSerie(""); 
+					       	  if (criterio.getNumeroSerieExtra()==null)
+         						criterio.setNumeroSerieExtra(""); 
                           	%>
 						      
 						      <div class="control-group">
